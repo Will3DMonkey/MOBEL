@@ -1,0 +1,99 @@
+```mermaid
+graph TB
+    %% Camada de Apresentação
+    subgraph "Camada de Apresentação"
+        WEB[Interface Web]
+        MOBILE[App Mobile]
+        API_DOC[Documentação API]
+    end
+
+    %% Camada de API Gateway
+    subgraph "API Gateway"
+        GATEWAY[API Gateway]
+        AUTH[Autenticação]
+        RATE[Rate Limiting]
+    end
+
+    %% Camada de Microsserviços
+    subgraph "Microsserviços"
+        COLLECTOR[Serviço de Coleta]
+        PROCESSOR[Serviço de Processamento]
+        GEO[Análise Geoespacial]
+        ML[Machine Learning]
+        REPORT[Geração de Relatórios]
+        NOTIFICATION[Notificações]
+    end
+
+    %% Camada de Dados
+    subgraph "Camada de Dados"
+        POSTGRES[(PostgreSQL + PostGIS)]
+        INFLUX[(InfluxDB)]
+        MONGO[(MongoDB)]
+        REDIS[(Redis Cache)]
+    end
+
+    %% Fontes de Dados Externas
+    subgraph "Fontes de Dados"
+        IBGE[IBGE APIs]
+        SOCIAL[Redes Sociais]
+        MAPS[Google Maps API]
+        RENTAL[Plataformas de Aluguel]
+        COMPLAINTS[Sistemas de Reclamações]
+        CNPJ[Base CNPJ]
+    end
+
+    %% Message Queue
+    KAFKA[Apache Kafka]
+
+    %% Conexões
+    WEB --> GATEWAY
+    MOBILE --> GATEWAY
+    
+    GATEWAY --> AUTH
+    GATEWAY --> RATE
+    GATEWAY --> COLLECTOR
+    GATEWAY --> PROCESSOR
+    GATEWAY --> GEO
+    GATEWAY --> ML
+    GATEWAY --> REPORT
+    GATEWAY --> NOTIFICATION
+
+    COLLECTOR --> KAFKA
+    PROCESSOR --> KAFKA
+    GEO --> KAFKA
+    ML --> KAFKA
+
+    COLLECTOR --> POSTGRES
+    COLLECTOR --> INFLUX
+    COLLECTOR --> MONGO
+
+    PROCESSOR --> POSTGRES
+    PROCESSOR --> REDIS
+
+    GEO --> POSTGRES
+    ML --> POSTGRES
+    ML --> INFLUX
+
+    REPORT --> POSTGRES
+    REPORT --> MONGO
+
+    %% Fontes externas
+    COLLECTOR --> IBGE
+    COLLECTOR --> SOCIAL
+    COLLECTOR --> MAPS
+    COLLECTOR --> RENTAL
+    COLLECTOR --> COMPLAINTS
+    COLLECTOR --> CNPJ
+
+    %% Styling
+    classDef external fill:#e1f5fe
+    classDef service fill:#f3e5f5
+    classDef data fill:#e8f5e8
+    classDef gateway fill:#fff3e0
+
+    class IBGE,SOCIAL,MAPS,RENTAL,COMPLAINTS,CNPJ external
+    class COLLECTOR,PROCESSOR,GEO,ML,REPORT,NOTIFICATION service
+    class POSTGRES,INFLUX,MONGO,REDIS data
+    class GATEWAY,AUTH,RATE gateway
+```
+

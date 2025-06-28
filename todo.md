@@ -1,0 +1,33 @@
+- [x] Pesquisa e análise de fontes de dados
+  - [ ] Identificar fontes de dados públicos (IBGE, prefeituras, etc.)
+  - [ ] Identificar fontes de dados privados (redes sociais, plataformas de aluguel, etc.)
+  - [ ] Catalogar APIs e métodos de acesso para cada fonte
+- [x] Arquitetura e design do sistema
+  - [x] Definir arquitetura de coleta e armazenamento de dados
+  - [x] Projetar estrutura do banco de dados
+  - [x] Esboçar fluxo de processamento e análise de dados
+- [x] Desenvolvimento do protótipo de coleta de dados
+  - [x] Implementar scripts para coleta de dados públicos
+  - [x] Implementar scripts para coleta de dados privados (se acessíveis)
+  - [x] Testar e validar a coleta de dados
+- [x] Algoritmo de análise de oportunidades
+  - [x] Desenvolver lógica para cruzar dados geográficos e demográficos
+  - [x] Criar algoritmo para identificar lacunas de mercado
+  - [x] Validar o algoritmo com dados de teste
+- [x] Interface web e visualização
+  - [x] Desenvolver frontend para visualização de mapas
+  - [x] Implementar dashboards interativos
+  - [x] Garantir responsividade e usabilidade
+- [x] Sistema de relatórios automatizados
+  - [x] Desenvolver template para relatórios
+  - [x] Implementar geração automática de PDFs/documentos
+  - [x] Personalizar relatórios por região e tipo de negócio
+- [x] Estratégia de monetização e modelo de negócio
+  - [x] Pesquisar modelos de precificação para consultoria
+  - [x] Definir canais de venda (prefeituras, apps de imóveis)
+  - [x] Elaborar proposta de valor para cada segmento
+- [x] Apresentação final e demonstração
+  - [x] Preparar slides da apresentação
+  - [x] Criar demonstração prática do sistema
+  - [x] Apresentar resultados e próximos passos
+
