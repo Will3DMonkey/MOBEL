@@ -1,23 +1,24 @@
 import os
-import sys
-# DON'T CHANGE THIS !!!
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
 from flask import Flask, send_from_directory
 from flask_cors import CORS
-from src.models.user import db
-from src.models.data_models import DataSource, CollectedData, BusinessOpportunity, CollectionLog
-from src.routes.user import user_bp
-from src.routes.data_routes import data_bp
 
-app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
+# --- ALTERAÇÃO 1: Imports Corrigidos ---
+# Removido o 'sys.path.insert'
+# Os imports agora partem da raiz do projeto, assumindo
+# que o comando é executado da pasta principal (MOBEL/).
+from models.user import db
+from models.data_models import DataSource, CollectedData, BusinessOpportunity, CollectionLog
+from routes.user import user_bp
+from routes.data_routes import data_bp
+from routes.analysis_routes import analysis_bp
+from routes.reports_routes import reports_bp
+
+# A variável 'app' precisa ser reconhecida pelo Gunicorn.
+app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), '..', '..', 'static'))
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
 # Habilitar CORS para todas as rotas
 CORS(app)
-
-from src.routes.analysis_routes import analysis_bp
-from src.routes.reports_routes import reports_bp
 
 # Registrar blueprints
 app.register_blueprint(user_bp, url_prefix='/api')
@@ -25,30 +26,35 @@ app.register_blueprint(data_bp, url_prefix='/api/data')
 app.register_blueprint(analysis_bp, url_prefix='/api/analysis')
 app.register_blueprint(reports_bp, url_prefix='/api/reports')
 
-# Configuração do banco de dados
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
+# --- ALTERAÇÃO 2: Caminho do Banco de Dados ---
+# O caminho foi ajustado para criar o banco de dados na raiz do projeto.
+# ATENÇÃO: O banco de dados SQLite será APAGADO a cada deploy no Render.
+# Para produção, use o serviço de PostgreSQL do Render.
+db_path = os.path.join(os.path.dirname(__file__), '..', 'database')
+os.makedirs(db_path, exist_ok=True)
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(db_path, 'app.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
+# Cria as tabelas do banco de dados se não existirem
 with app.app_context():
     db.create_all()
 
+# --- ALTERAÇÃO 3: Rota para servir o Front-end (React/Vue/Angular) ---
+# Esta rota serve o 'index.html' do seu front-end para qualquer rota
+# não encontrada no back-end, permitindo o roteamento do lado do cliente.
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
-    static_folder_path = app.static_folder
-    if static_folder_path is None:
-            return "Static folder not configured", 404
-
-    if path != "" and os.path.exists(os.path.join(static_folder_path, path)):
-        return send_from_directory(static_folder_path, path)
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
     else:
-        index_path = os.path.join(static_folder_path, 'index.html')
+        index_path = os.path.join(app.static_folder, 'index.html')
         if os.path.exists(index_path):
-            return send_from_directory(static_folder_path, 'index.html')
+            return send_from_directory(app.static_folder, 'index.html')
         else:
-            return "index.html not found", 404
-
+            # Mensagem de erro útil se o front-end não for encontrado.
+            return "index.html não encontrado na pasta static. Verifique o build do seu front-end.", 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
