@@ -2,15 +2,15 @@ import os
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 
-# --- ALTERAÇÃO CRÍTICA: Imports Corrigidos para a Estrutura 'src' ---
-# Como todo o nosso código está dentro do pacote 'src', todos os imports
-# locais devem começar com 'src.'.
-from src.models.user import db
-from src.models.data_models import DataSource, CollectedData, BusinessOpportunity, CollectionLog
-from src.routes.user import user_bp
-from src.routes.data_routes import data_bp
-from src.routes.analysis_routes import analysis_bp
-from src.routes.reports_routes import reports_bp
+# --- ALTERAÇÃO CRÍTICA: MUDANÇA PARA IMPORTS RELATIVOS ---
+# O '.' antes do nome do módulo indica ao Python para procurar
+# dentro do pacote atual ('src'), o que é mais robusto para o deploy.
+from .models.user import db
+from .models.data_models import DataSource, CollectedData, BusinessOpportunity, CollectionLog
+from .routes.user import user_bp
+from .routes.data_routes import data_bp
+from .routes.analysis_routes import analysis_bp
+from .routes.reports_routes import reports_bp
 
 # A variável 'app' precisa de ser reconhecida pelo Gunicorn.
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
