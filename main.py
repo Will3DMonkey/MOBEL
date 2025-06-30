@@ -2,18 +2,17 @@ import os
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 
-# --- ALTERAÇÃO CRÍTICA: MUDANÇA PARA IMPORTS RELATIVOS ---
-# O '.' antes do nome do módulo indica ao Python para procurar
-# dentro do pacote atual ('src'), o que é mais robusto para o deploy.
-from .models.user import db
-from .models.data_models import DataSource, CollectedData, BusinessOpportunity, CollectionLog
-from .routes.user import user_bp
-from .routes.data_routes import data_bp
-from .routes.analysis_routes import analysis_bp
-from .routes.reports_routes import reports_bp
+# --- IMPORTS CORRIGIDOS PARA A ESTRUTURA PLANA ---
+# Agora, os imports são diretos a partir da raiz do projeto.
+from models.user import db
+from models.data_models import DataSource, CollectedData, BusinessOpportunity, CollectionLog
+from routes.user import user_bp
+from routes.data_routes import data_bp
+from routes.analysis_routes import analysis_bp
+from routes.reports_routes import reports_bp
 
-# A variável 'app' precisa de ser reconhecida pelo Gunicorn.
-app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'static'))
+# O 'static_folder' agora aponta para a pasta 'static' na raiz.
+app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
 # Habilitar CORS para todas as rotas
@@ -26,8 +25,8 @@ app.register_blueprint(analysis_bp, url_prefix='/api/analysis')
 app.register_blueprint(reports_bp, url_prefix='/api/reports')
 
 # Configuração do banco de dados
+# O caminho está correto para criar a pasta 'database' na raiz.
 # ATENÇÃO: O banco de dados SQLite será APAGADO a cada deploy no Render.
-# Para produção, use o serviço de PostgreSQL do Render.
 db_path = os.path.join(os.path.dirname(__file__), 'database')
 os.makedirs(db_path, exist_ok=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(db_path, 'app.db')}"
