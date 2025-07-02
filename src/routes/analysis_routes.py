@@ -24,19 +24,12 @@ def health_check():
         'version': '1.0.0'
     })
 
-# --- ROTA DE ANÁLISE CORRIGIDA ---
-# O URL foi simplificado para /analyze e a região é pega do corpo da requisição.
-# Isto é mais robusto do que passar nomes de cidades com espaços na URL.
-@analysis_bp.route('/analyze', methods=['POST'])
-def analyze_region():
+# --- ROTA DE ANÁLISE CORRIGIDA PARA CORRESPONDER AO FRONT-END ---
+# A rota agora aceita a região diretamente no URL, como o front-end está a enviar.
+@analysis_bp.route('/analyze/<region>', methods=['POST'])
+def analyze_region(region):
     """Analisa oportunidades para uma região específica"""
     try:
-        data = request.json
-        region = data.get('region')
-
-        if not region:
-            return jsonify({'success': False, 'error': 'Região não fornecida'}), 400
-
         logger.info(f"Iniciando análise para região: {region}")
         
         # Executar análise
@@ -94,7 +87,7 @@ def analyze_region():
         })
         
     except Exception as e:
-        logger.error(f"Erro na análise da região: {str(e)}")
+        logger.error(f"Erro na análise da região {region}: {str(e)}")
         return jsonify({
             'success': False,
             'error': str(e)
