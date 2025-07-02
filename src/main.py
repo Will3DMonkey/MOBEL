@@ -20,17 +20,19 @@ app.register_blueprint(analysis_bp, url_prefix='/api/analysis')
 app.register_blueprint(reports_bp, url_prefix='/api/reports')
 
 # --- CONFIGURAÇÃO DA BASE DE DADOS PARA POSTGRESQL NO RENDER ---
-# Esta é a configuração recomendada e robusta para produção.
-# O Render fornece a URL da base de dados através de uma variável de ambiente.
 DATABASE_URL = os.environ.get('DATABASE_URL')
+
+# --- LINHA DE DEPURAÇÃO ---
+# Esta linha irá mostrar-nos o valor exato da DATABASE_URL nos logs do Render.
+print(f"--- DEBUG: Tentando usar DATABASE_URL: '{DATABASE_URL}' ---")
 
 # O SQLAlchemy espera 'postgresql://' em vez de 'postgres://' que o Render fornece.
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-# Adiciona uma verificação para garantir que a DATABASE_URL foi encontrada.
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL não está configurada. Verifique se o Environment Group está ligado no Render.")
+# Adiciona uma verificação mais robusta para garantir que a DATABASE_URL é válida.
+if not DATABASE_URL or not DATABASE_URL.strip():
+    raise RuntimeError("DATABASE_URL não está configurada ou está vazia. Verifique as variáveis de ambiente no Render.")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
