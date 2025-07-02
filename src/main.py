@@ -28,6 +28,10 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
+# Adiciona uma verificação para garantir que a DATABASE_URL foi encontrada.
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL não está configurada. Verifique se o Environment Group está ligado no Render.")
+
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
