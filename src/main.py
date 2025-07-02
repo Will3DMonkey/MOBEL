@@ -19,24 +19,32 @@ app.register_blueprint(data_bp, url_prefix='/api/data')
 app.register_blueprint(analysis_bp, url_prefix='/api/analysis')
 app.register_blueprint(reports_bp, url_prefix='/api/reports')
 
-# --- CONFIGURAÇÃO DA BASE DE DADOS PARA POSTGRESQL NO RENDER ---
+# --- CONFIGURAÇÃO DA BASE DE DADOS PARA POSTGRESQL (COM DEPURAÇÃO ROBUSTA) ---
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-# --- LINHA DE DEPURAÇÃO ---
-# Esta linha irá mostrar-nos o valor exato da DATABASE_URL nos logs do Render.
-print(f"--- DEBUG: Tentando usar DATABASE_URL: '{DATABASE_URL}' ---")
+# Passo 1: Imprimir o valor bruto que recebemos do Render
+print(f"--- DEBUG PASSO 1: Valor bruto de DATABASE_URL recebido: '{DATABASE_URL}'")
 
-# O SQLAlchemy espera 'postgresql://' em vez de 'postgres://' que o Render fornece.
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-# Adiciona uma verificação mais robusta para garantir que a DATABASE_URL é válida.
+# Passo 2: Validar se a variável existe e não está vazia
 if not DATABASE_URL or not DATABASE_URL.strip():
-    raise RuntimeError("DATABASE_URL não está configurada ou está vazia. Verifique as variáveis de ambiente no Render.")
+    raise ValueError("ERRO CRÍTICO: A variável de ambiente 'DATABASE_URL' não foi encontrada ou está vazia. Verifique a configuração no Render.")
 
+# Passo 3: Corrigir o prefixo da URL se necessário
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    print(f"--- DEBUG PASSO 2: URL corrigida para: '{DATABASE_URL}'")
+
+# Passo 4: Aplicar a configuração ao Flask
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+print("--- DEBUG PASSO 3: Configuração da base de dados aplicada. A tentar inicializar db.init_app(app)...")
+
+# Inicializar a base de dados
 db.init_app(app)
+
+print("--- DEBUG PASSO 4: db.init_app(app) concluído com sucesso.")
+
 
 with app.app_context():
     db.create_all()
