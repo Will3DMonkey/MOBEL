@@ -179,7 +179,7 @@
 
         .opportunity-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 0.5rem;
         }
@@ -516,7 +516,8 @@
 
             try {
                 // Executar análise
-                const analysisResponse = await fetch(`${API_BASE}/analysis/analyze/${encodeURIComponent(region)}`, {
+                // --- ALTERAÇÃO 1: Adicionado /api ao URL ---
+                const analysisResponse = await fetch(`${API_BASE}/api/analysis/analyze/${encodeURIComponent(region)}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -559,7 +560,8 @@
                 if (minScore > 0) params.append('min_score', minScore);
                 params.append('limit', '50');
 
-                const response = await fetch(`${API_BASE}/analysis/opportunities?${params}`);
+                // --- ALTERAÇÃO 2: Adicionado /api ao URL ---
+                const response = await fetch(`${API_BASE}/api/analysis/opportunities?${params}`);
                 
                 if (!response.ok) {
                     throw new Error(`Erro ao carregar oportunidades: ${response.status}`);
@@ -796,4 +798,3 @@
     </script>
 </body>
 </html>
-
