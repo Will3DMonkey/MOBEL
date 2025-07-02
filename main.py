@@ -2,15 +2,23 @@ import os
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 
-# --- IMPORTS DIRETOS PARA ESTRUTURA PLANA ---
-# Este código corresponde à sua estrutura de pastas atual,
-# onde 'main.py', 'models' e 'routes' estão na raiz.
-from models.user import db
-from models.data_models import DataSource, CollectedData, BusinessOpportunity, CollectionLog
-from routes.user import user_bp
-from routes.data_routes import data_bp
-from routes.analysis_routes import analysis_bp
-from routes.reports_routes import reports_bp
+# --- IMPORTS PARA ESTRUTURA COMPLETAMENTE PLANA ---
+# Este código assume que TODOS os ficheiros .py estão na raiz do projeto,
+# conforme a sua última imagem.
+
+# Assumindo que 'db' e os modelos de dados estão em 'data_models.py'.
+# Se 'db' estiver noutro ficheiro, terá de ajustar este import.
+from data_models import db, DataSource, CollectedData, BusinessOpportunity, CollectionLog
+
+# Importando os blueprints dos ficheiros de rotas existentes.
+from data_routes import data_bp
+from analysis_routes import analysis_bp
+from reports_routes import reports_bp
+
+# ATENÇÃO: O 'user_bp' não foi importado porque não encontrei um ficheiro
+# 'user.py' ou 'user_routes.py' na sua imagem. Se este ficheiro existir,
+# adicione o import correspondente (ex: from user_routes import user_bp)
+# e descomente a linha de registo do blueprint abaixo.
 
 # O 'static_folder' aponta para a pasta 'static' na raiz.
 app = Flask(__name__, static_folder='static')
@@ -20,7 +28,7 @@ app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 CORS(app)
 
 # Registar blueprints
-app.register_blueprint(user_bp, url_prefix='/api')
+# app.register_blueprint(user_bp, url_prefix='/api') # Descomente se tiver o user_bp
 app.register_blueprint(data_bp, url_prefix='/api/data')
 app.register_blueprint(analysis_bp, url_prefix='/api/analysis')
 app.register_blueprint(reports_bp, url_prefix='/api/reports')
