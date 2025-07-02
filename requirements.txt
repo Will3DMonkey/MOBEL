@@ -19,6 +19,7 @@ gunicorn
 fastapi
 uvicorn
 numpy
+pandas
 
 # Adicione aqui quaisquer outras bibliotecas que seu projeto utiliza
 # Exemplo: pandas, pydantic, sqlalchemy, etc.
