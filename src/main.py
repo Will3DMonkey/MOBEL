@@ -19,15 +19,16 @@ app.register_blueprint(data_bp, url_prefix='/api/data')
 app.register_blueprint(analysis_bp, url_prefix='/api/analysis')
 app.register_blueprint(reports_bp, url_prefix='/api/reports')
 
-# --- CONFIGURAÇÃO DA BASE DE DADOS CORRIGIDA PARA O RENDER ---
-# O Render não permite escrever em qualquer diretório. Usamos /var/data,
-# que é um diretório persistente e gravável.
-#
-# AVISO: Esta é uma solução temporária. O ideal é usar o serviço de
-# PostgreSQL gratuito do Render para uma base de dados persistente e fiável.
-# O SQLite irá funcionar, mas os dados podem ser perdidos.
-RENDER_SQLITE_PATH = '/var/data/app.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{RENDER_SQLITE_PATH}"
+# --- CONFIGURAÇÃO DA BASE DE DADOS PARA POSTGRESQL NO RENDER ---
+# Esta é a configuração recomendada e robusta para produção.
+# O Render fornece a URL da base de dados através de uma variável de ambiente.
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+# O SQLAlchemy espera 'postgresql://' em vez de 'postgres://' que o Render fornece.
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
