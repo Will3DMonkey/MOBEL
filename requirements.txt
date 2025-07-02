@@ -20,6 +20,7 @@ fastapi
 uvicorn
 numpy
 pandas
+psycopg2-binary
 
 # Adicione aqui quaisquer outras bibliotecas que seu projeto utiliza
 # Exemplo: pandas, pydantic, sqlalchemy, etc.
