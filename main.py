@@ -1,54 +1,43 @@
 import os
-from flask import Flask, send_from_directory
+import sys
+from flask import Flask, jsonify
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 
-# --- IMPORTS CORRIGIDOS PARA USAR IMPORTS RELATIVOS ---
-# O '.' indica ao Python para procurar dentro do pacote atual ('src').
-from .models.user import db
-from .models.data_models import DataSource, CollectedData, BusinessOpportunity, CollectionLog
-from .routes.user import user_bp
-from .routes.data_routes import data_bp
-from .routes.analysis_routes import analysis_bp
-from .routes.reports_routes import reports_bp
+# Importar blueprints diretamente, sem o prefixo 'src.'
+# Assumindo que user_routes.py, data_routes.py, analysis_routes.py, reports_routes.py estão na pasta 'routes'
+from routes.user_routes import user_bp
+from routes.data_routes import data_bp
+from routes.analysis_routes import analysis_bp
+from routes.reports_routes import reports_bp
 
-# O 'static_folder' aponta para a pasta 'static' dentro de 'src'.
-app = Flask(__name__, static_folder='static')
-app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
+# Importar db diretamente, sem o prefixo 'src.'
+# Assumindo que db é inicializado em models/data_models.py ou models/user.py
+# Vou assumir que db é inicializado em models/data_models.py como no protótipo original
+from models.data_models import db
 
-# Habilitar CORS para todas as rotas
-CORS(app)
+app = Flask(__name__)
+CORS(app) # Habilitar CORS para todas as rotas
 
-# Registar blueprints
-app.register_blueprint(user_bp, url_prefix='/api')
-app.register_blueprint(data_bp, url_prefix='/api/data')
-app.register_blueprint(analysis_bp, url_prefix='/api/analysis')
-app.register_blueprint(reports_bp, url_prefix='/api/reports')
+# Configuração do banco de dados (SQLite para protótipo)
+# Render pode precisar de uma variável de ambiente para o DB, como DATABASE_URL
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///site.db")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Configuração do banco de dados
-# O caminho está correto para criar a pasta 'database' dentro de 'src'.
-# ATENÇÃO: O banco de dados SQLite será APAGADO a cada deploy no Render.
-db_path = os.path.join(os.path.dirname(__file__), 'database')
-os.makedirs(db_path, exist_ok=True)
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(db_path, 'app.db')}"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
-# Cria as tabelas do banco de dados se não existirem
-with app.app_context():
-    db.create_all()
+# Registrar blueprints
+app.register_blueprint(user_bp, url_prefix="/api")
+app.register_blueprint(data_bp, url_prefix="/api/data")
+app.register_blueprint(analysis_bp, url_prefix="/api/analysis")
+app.register_blueprint(reports_bp, url_prefix="/api/reports")
 
-# Rota para servir o Front-end
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
-        return send_from_directory(app.static_folder, path)
-    else:
-        index_path = os.path.join(app.static_folder, 'index.html')
-        if os.path.exists(index_path):
-            return send_from_directory(app.static_folder, 'index.html')
-        else:
-            return "index.html não encontrado na pasta static. Verifique o build do seu front-end.", 404
+@app.route("/")
+def home():
+    return "API do Mapa de Oportunidade por Bairro está online!"
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+if __name__ == "__main__":
+    with app.app_context():
+        db.create_all() # Cria as tabelas do banco de dados
+    # Usar a porta fornecida pelo ambiente (Render) ou 5000 como fallback
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
